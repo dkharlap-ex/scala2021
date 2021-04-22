@@ -14,7 +14,10 @@ object AdvertisementStatistics {
         "25,scala-lang.org"
     )
 
-    val advertisementNumberPerDomain: scala.collection.immutable.Map[String,Int] = countAdvertisementNumberPerDomain(stats)
+    //Version1 call
+    //val advertisementNumberPerDomain: Map[String,Int] = countAdvertisementNumberPerDomain(stats)
+    //Version2 call
+    val advertisementNumberPerDomain: Map[String,Int] = countAdvertisementNumberPerDomain_v2(stats)
 
     //Output data
     advertisementNumberPerDomain.keys.foreach { key =>
@@ -22,6 +25,7 @@ object AdvertisementStatistics {
     }
   }
 
+  //Version1
   def countAdvertisementNumberPerDomain(stats: Array[String]): scala.collection.immutable.Map[String,Int] = {
     var advertisementNumberPerDomain: scala.collection.immutable.Map[String,Int] = scala.collection.immutable.Map()
     for (statItem <- stats) {
@@ -44,6 +48,32 @@ object AdvertisementStatistics {
         }
       }
     }
+    advertisementNumberPerDomain
+  }
+
+  //Version2
+  def countAdvertisementNumberPerDomain_v2(stats: Array[String]): Map[String,Int] = {
+    var advertisementNumberPerDomain: Map[String,Int] = Map()
+    stats.map(statItem => {
+      val splittedStatItem: Array[String] = statItem.split(",")
+      val advertisementNumber:Int = splittedStatItem(0).toInt
+
+      var currentDomain: String = ""
+      splittedStatItem(1).split("\\.").reverse.map(subDomain => {
+        if (currentDomain.nonEmpty) {
+          currentDomain = subDomain + "." + currentDomain
+        } else {
+          currentDomain = subDomain
+        }
+
+        if (advertisementNumberPerDomain.contains(currentDomain)) {
+          val advertisementAmount: Int = advertisementNumberPerDomain(currentDomain) + advertisementNumber
+          advertisementNumberPerDomain += currentDomain -> advertisementAmount
+        } else {
+          advertisementNumberPerDomain += currentDomain -> advertisementNumber
+        }
+      })
+    })
     advertisementNumberPerDomain
   }
 
