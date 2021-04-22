@@ -54,25 +54,27 @@ object AdvertisementStatistics {
   //Version2
   def countAdvertisementNumberPerDomain_v2(stats: Array[String]): Map[String,Int] = {
     var advertisementNumberPerDomain: Map[String,Int] = Map()
-    stats.map(statItem => {
+    stats.filter(statItem => statItem.nonEmpty).map(statItem => {
       val splittedStatItem: Array[String] = statItem.split(",")
       val advertisementNumber:Int = splittedStatItem(0).toInt
 
       var currentDomain: String = ""
-      splittedStatItem(1).split("\\.").reverse.map(subDomain => {
-        if (currentDomain.nonEmpty) {
-          currentDomain = subDomain + "." + currentDomain
-        } else {
-          currentDomain = subDomain
-        }
+      if (splittedStatItem.length > 1) {
+        splittedStatItem(1).split("\\.").reverse.map(subDomain => {
+          if (currentDomain.nonEmpty) {
+            currentDomain = subDomain + "." + currentDomain
+          } else {
+            currentDomain = subDomain
+          }
 
-        if (advertisementNumberPerDomain.contains(currentDomain)) {
-          val advertisementAmount: Int = advertisementNumberPerDomain(currentDomain) + advertisementNumber
-          advertisementNumberPerDomain += currentDomain -> advertisementAmount
-        } else {
-          advertisementNumberPerDomain += currentDomain -> advertisementNumber
-        }
-      })
+          if (advertisementNumberPerDomain.contains(currentDomain)) {
+            val advertisementAmount: Int = advertisementNumberPerDomain(currentDomain) + advertisementNumber
+            advertisementNumberPerDomain += currentDomain -> advertisementAmount
+          } else {
+            advertisementNumberPerDomain += currentDomain -> advertisementNumber
+          }
+        })
+      }
     })
     advertisementNumberPerDomain
   }
