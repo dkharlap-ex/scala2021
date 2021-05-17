@@ -37,12 +37,19 @@ object Resource {
   def withResource[A, B](resource: Any)
                         (creator: Any => A)
                         (closure: A => Unit = { _:A => println("No need to close resource")})
-                        (executor: A => B): B = {
+                        (executor: A => B): Any = {
     val instance = creator.apply(resource)
-    try {
-      executor(instance)
-    } finally {
-      closure.apply(instance)
+    val tryCleanResourceRes = try {
+        Right(executor(instance))
+      } catch {
+        case e: Exception => Left(e)
+      } finally {
+        Right(closure.apply(instance))
+      }
+
+    tryCleanResourceRes match {
+      case Right(_) => ()
+      case Left(e) => throw e
     }
   }
 
